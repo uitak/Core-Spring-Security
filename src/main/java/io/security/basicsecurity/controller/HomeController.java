@@ -13,10 +13,22 @@ public class HomeController {
 		return "home";
 	}
 
-	@GetMapping(value="/abc")
+	@GetMapping(value="/user")
 	@ResponseBody
-	public String login() throws Exception {
-		return "login";
+	public String user() throws Exception {
+		return "user";
+	}
+	
+	@GetMapping(value="/admin/pay")
+	@ResponseBody
+	public String adminPay() throws Exception {
+		return "adminPay";
+	}
+	
+	@GetMapping(value="/admin/**")
+	@ResponseBody
+	public String admin() throws Exception {
+		return "admin";
 	}
 
 }
