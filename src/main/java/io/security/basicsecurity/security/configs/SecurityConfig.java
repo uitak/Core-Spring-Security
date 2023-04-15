@@ -1,21 +1,34 @@
 package io.security.basicsecurity.security.configs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 public class SecurityConfig {
 
+	/*
+	@Autowired
+	private AuthenticationDetailsSource authenticationDetailsSource;
+	*/
+	
 	// 정적인 자원(css, js, image)에 대해서 스프링 시큐리티 필터를 거치지 않도록 설정.
 	@Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(new AntPathRequestMatcher("/h2-console/**"));
+        //return (web) -> web.ignoring().requestMatchers(new AntPathRequestMatcher("/h2-console/**"));
+		RequestMatcher resourceMatcher = new AntPathRequestMatcher("/images/**");
+		RequestMatcher databaseMatcher = new AntPathRequestMatcher("/h2-console/**");
+
+		return (web) -> web.ignoring().requestMatchers(new OrRequestMatcher(resourceMatcher, databaseMatcher));
     }
 	
 	/*
@@ -66,7 +79,7 @@ public class SecurityConfig {
 
 		http.formLogin()
 			.loginPage("/login")
-			.loginProcessingUrl("/login_proc")
+			.loginProcessingUrl("/login_proc")//.authenticationDetailsSource(authenticationDetailsSource)
 			.defaultSuccessUrl("/")
 			.permitAll();
 

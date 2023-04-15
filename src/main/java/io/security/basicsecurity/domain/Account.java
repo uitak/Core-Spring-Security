@@ -21,5 +21,5 @@ public class Account {
 	private String password;
 	private String email;
 	private String age;
-	private String role = "ROLE_USER";
+	private String role;
 }
