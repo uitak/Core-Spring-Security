@@ -9,26 +9,39 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
+
 @Configuration
 public class SecurityConfig {
 
-	/*
 	@Autowired
-	private AuthenticationDetailsSource authenticationDetailsSource;
-	*/
+	private AuthenticationFailureHandler authenticationFailureHandler;
+	
+	@Autowired
+	private AuthenticationSuccessHandler authenticationSuccessHandler;
+	
+	@Autowired
+    private AuthenticationDetailsSource authenticationDetailsSource;
 	
 	// 정적인 자원(css, js, image)에 대해서 스프링 시큐리티 필터를 거치지 않도록 설정.
 	@Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         //return (web) -> web.ignoring().requestMatchers(new AntPathRequestMatcher("/h2-console/**"));
-		RequestMatcher resourceMatcher = new AntPathRequestMatcher("/images/**");
 		RequestMatcher databaseMatcher = new AntPathRequestMatcher("/h2-console/**");
-
-		return (web) -> web.ignoring().requestMatchers(new OrRequestMatcher(resourceMatcher, databaseMatcher));
+		RequestMatcher resourceMatcher = new AntPathRequestMatcher("/images/**");
+		RequestMatcher jsMatcher = new AntPathRequestMatcher("/js/**");
+		RequestMatcher cssMatcher = new AntPathRequestMatcher("/css/**");
+		
+		return (web) -> web.ignoring().requestMatchers(
+					new OrRequestMatcher(resourceMatcher, databaseMatcher, jsMatcher, cssMatcher)
+				);
     }
 	
 	/*
@@ -70,19 +83,33 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
+
 		http.authorizeHttpRequests()
-			.requestMatchers("/", "/users").permitAll()
+			.requestMatchers("/", "/users", "/login*").permitAll()
 			.requestMatchers("/mypage").hasAnyRole("USER", "MANAGER", "ADMIN")
 			.requestMatchers("/messages").hasAnyRole("MANAGER", "ADMIN")
 			.requestMatchers("/config").hasRole("ADMIN")
-			.anyRequest().authenticated();
+			.anyRequest().authenticated()
 
-		http.formLogin()
+		/*
+		http
+			.authorizeHttpRequests()
+			.requestMatchers("/", "/login*", "/users").permitAll()
+			.anyRequest().authenticated()
+		*/
+		.and()
+			.formLogin()
 			.loginPage("/login")
-			.loginProcessingUrl("/login_proc")//.authenticationDetailsSource(authenticationDetailsSource)
-			.defaultSuccessUrl("/")
-			.permitAll();
+			.loginProcessingUrl("/login_proc")
+			.authenticationDetailsSource(authenticationDetailsSource)
+			.successHandler(authenticationSuccessHandler)
+			.failureHandler(authenticationFailureHandler)
+			.permitAll()
+		;
 
+		http
+			.exceptionHandling()
+			.accessDeniedHandler(accessDeniedHandler());
 		/*
 		http.rememberMe()
 			.rememberMeParameter("remember")
@@ -99,5 +126,13 @@ public class SecurityConfig {
         http.headers().frameOptions().disable();
 
 		return http.build();
+	}
+	
+	@Bean
+	public AccessDeniedHandler accessDeniedHandler() {
+		CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+		accessDeniedHandler.setErrorPage("/denied");
+
+		return accessDeniedHandler;
 	}
 }

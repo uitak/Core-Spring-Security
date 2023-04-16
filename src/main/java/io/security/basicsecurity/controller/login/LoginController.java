@@ -6,21 +6,23 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import io.security.basicsecurity.domain.Account;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class LoginController {
 
-	@RequestMapping(value="/login")
+	@GetMapping(value="/login")
 	public String login(@RequestParam(value = "error", required = false) String error,
-						@RequestParam(value = "exception", required = false) String exception, 
+						@RequestParam(value = "exception", required = false) String exception,
 						Model model) {
-		model.addAttribute("error",error);
-		model.addAttribute("exception",exception);
+		
+		model.addAttribute("error", error);
+		model.addAttribute("exception", exception);
+		
 		return "login";
 	}
 	
@@ -36,8 +38,13 @@ public class LoginController {
 	}
 	
 	@GetMapping(value="/denied")
-	public String accessDenied() throws Exception {
+	public String accessDenied(@RequestParam(value = "exception", required = false) String exception, Model model) throws Exception {
 
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Account account = (Account)authentication.getPrincipal();
+		model.addAttribute("username", account.getUsername());
+		model.addAttribute("exception", exception);
+		
 		return "user/login/denied";
 	}
 }

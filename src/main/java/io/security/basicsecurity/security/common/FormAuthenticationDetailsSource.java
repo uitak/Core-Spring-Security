@@ -11,6 +11,7 @@ public class FormAuthenticationDetailsSource implements AuthenticationDetailsSou
 
 	@Override
 	public WebAuthenticationDetails buildDetails(HttpServletRequest context) {
+		System.out.println("컴스텀: AuthenticatioinDetails() -----------------------");
 		return new FormWebAuthenticationDetails(context);
 	}
 }
