@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -12,15 +14,19 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import io.security.basicsecurity.security.filter.AjaxLoginProcessingFilter;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 public class SecurityConfig {
-
+	
 	@Autowired
 	private AuthenticationFailureHandler authenticationFailureHandler;
 	
@@ -28,7 +34,7 @@ public class SecurityConfig {
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
 	
 	@Autowired
-    private AuthenticationDetailsSource authenticationDetailsSource;
+    private AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource;
 	
 	// 정적인 자원(css, js, image)에 대해서 스프링 시큐리티 필터를 거치지 않도록 설정.
 	@Bean
@@ -109,7 +115,12 @@ public class SecurityConfig {
 
 		http
 			.exceptionHandling()
-			.accessDeniedHandler(accessDeniedHandler());
+			.accessDeniedHandler(accessDeniedHandler())
+		;
+		
+		http
+			.addFilterBefore(ajaxLoginProcessingFilter(http), UsernamePasswordAuthenticationFilter.class)
+		;
 		/*
 		http.rememberMe()
 			.rememberMeParameter("remember")
@@ -124,7 +135,8 @@ public class SecurityConfig {
 		
 		// h2-console 페이지 표시 안될 경우 필요.
         http.headers().frameOptions().disable();
-
+        
+        http.csrf().disable();
 		return http.build();
 	}
 	
@@ -135,4 +147,18 @@ public class SecurityConfig {
 
 		return accessDeniedHandler;
 	}
+	
+	@Bean
+	public AjaxLoginProcessingFilter ajaxLoginProcessingFilter(HttpSecurity http) throws Exception {
+		
+		return new AjaxLoginProcessingFilter("/api/login", authenticationManager(
+				http.getSharedObject(AuthenticationConfiguration.class)
+            ));
+	}
+	
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+	    return authenticationConfiguration.getAuthenticationManager();
+	}
+	
 }
