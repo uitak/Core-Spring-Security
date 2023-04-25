@@ -6,7 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,18 +16,22 @@ import io.security.basicsecurity.security.token.AjaxAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+//@Component
 public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
 	public AjaxLoginProcessingFilter(String url, AuthenticationManager authManager) {
-		super(new AntPathRequestMatcher(url));
+		super(url);
+		//super(new AntPathRequestMatcher(url));
 		setAuthenticationManager(authManager);
 	}
 	
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) 
 			throws AuthenticationException, IOException {
+		
+		System.out.println("Ajax 인증 필터: attemptAuthentication() 실행 ----------------------------------");
 		
 		if (!isAjax(request)) {
 			throw new IllegalStateException("Authentication is not supported");
