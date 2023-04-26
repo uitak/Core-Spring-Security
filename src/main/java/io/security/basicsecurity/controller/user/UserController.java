@@ -1,7 +1,11 @@
 package io.security.basicsecurity.controller.user;
 
+import java.security.Principal;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +44,7 @@ public class UserController {
 	}
 	
 	@GetMapping(value="/mypage")
-	public String myPage() throws Exception {
+	public String myPage(@AuthenticationPrincipal Account account, Authentication authentication, Principal principal) throws Exception {
 		return "user/mypage";
 	}
 }

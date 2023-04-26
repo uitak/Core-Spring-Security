@@ -6,7 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.stereotype.Component;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,10 +21,10 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
-	public AjaxLoginProcessingFilter(String url, AuthenticationManager authManager) {
-		super(url);
-		//super(new AntPathRequestMatcher(url));
-		setAuthenticationManager(authManager);
+	public AjaxLoginProcessingFilter(String url) {
+		//super(url);
+		super(new AntPathRequestMatcher(url, "POST"));
+		//this.setAuthenticationManager(authManager);
 	}
 	
 	@Override
@@ -44,7 +44,7 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 		
 		AjaxAuthenticationToken ajaxAuthenticationToken = new AjaxAuthenticationToken(accountDto.getUsername(), accountDto.getPassword());
 		
-		return getAuthenticationManager().authenticate(ajaxAuthenticationToken);
+		return this.getAuthenticationManager().authenticate(ajaxAuthenticationToken);
 	}
 	
 	private boolean isAjax(HttpServletRequest request) {
