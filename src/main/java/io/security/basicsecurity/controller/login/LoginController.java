@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.security.basicsecurity.domain.Account;
+import io.security.basicsecurity.security.service.AccountContext;
 import io.security.basicsecurity.security.token.AjaxAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,9 +48,13 @@ public class LoginController {
 		Account account = null;
 		
 		if (principal instanceof UsernamePasswordAuthenticationToken) {
+			System.out.println("UsernamePasswordAuthenticationToken 토큰을 변환");
 			account = (Account) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+			//AccountContext ac = (AccountContext) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+			//account = ac.getAccount();
 		}
 		else if (principal instanceof AjaxAuthenticationToken) {
+			System.out.println("AjaxAuthenticationToken 토큰을 변환");
 			account = (Account) ((AjaxAuthenticationToken) principal).getPrincipal();
 		}
 		

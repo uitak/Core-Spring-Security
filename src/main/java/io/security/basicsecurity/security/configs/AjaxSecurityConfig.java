@@ -52,9 +52,7 @@ public class AjaxSecurityConfig {
 			.exceptionHandling()
 			.authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint())
 			.accessDeniedHandler(ajaxAccessDeniedHandler());
-		
-		http.formLogin().disable();
-		
+
 		return http.build();
 	}
 	

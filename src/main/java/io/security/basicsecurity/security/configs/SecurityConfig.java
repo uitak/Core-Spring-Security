@@ -87,7 +87,6 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-
 		http.authorizeHttpRequests()
 			.requestMatchers("/", "/users", "/login*").permitAll()
 			.requestMatchers("/mypage").hasAnyRole("USER", "MANAGER", "ADMIN")
@@ -95,12 +94,6 @@ public class SecurityConfig {
 			.requestMatchers("/config").hasRole("ADMIN")
 			.anyRequest().authenticated()
 
-		/*
-		http
-			.authorizeHttpRequests()
-			.requestMatchers("/", "/login*", "/users").permitAll()
-			.anyRequest().authenticated()
-		*/
 		.and()
 			.formLogin()
 			.loginPage("/login")
@@ -115,19 +108,6 @@ public class SecurityConfig {
 			.exceptionHandling()
 			.accessDeniedHandler(accessDeniedHandler())
 		;
-		
-		
-		/*
-		http.rememberMe()
-			.rememberMeParameter("remember")
-			.tokenValiditySeconds(3600) // 초 단위(3600=1시간), Default 14일
-			.alwaysRemember(false)
-			.userDetailsService(userDetailsService);
-
-		http.sessionManagement()
-			.maximumSessions(1)
-			.maxSessionsPreventsLogin(false); // 동시 로그인 차단. Default는 false(기존 세션 만료)
-		*/
 		
 		// h2-console 페이지 표시 안될 경우 필요.
         http.headers().frameOptions().disable();
