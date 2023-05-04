@@ -11,7 +11,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.security.basicsecurity.domain.AccountDto;
+import io.security.basicsecurity.domain.dto.AccountDto;
 import io.security.basicsecurity.security.token.AjaxAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

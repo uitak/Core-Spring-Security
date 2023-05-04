@@ -11,8 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import io.security.basicsecurity.domain.Account;
-import io.security.basicsecurity.domain.AccountDto;
+import io.security.basicsecurity.domain.dto.AccountDto;
+import io.security.basicsecurity.domain.entity.Account;
 import io.security.basicsecurity.service.UserService;
 
 @Controller
@@ -36,7 +36,7 @@ public class UserController {
 		Account account = modelMapper.map(accountDto, Account.class);
 		account.setPassword(passwordEncoder.encode(account.getPassword()));
 
-		account.setRole("ROLE_USER");
+		//account.setRole("ROLE_USER");
 		
 		userService.createUser(account);
 		

@@ -2,8 +2,8 @@ package io.security.basicsecurity.service;
 
 import java.util.List;
 
-import io.security.basicsecurity.domain.Account;
-import io.security.basicsecurity.domain.AccountDto;
+import io.security.basicsecurity.domain.dto.AccountDto;
+import io.security.basicsecurity.domain.entity.Account;
 
 public interface UserService {
 

@@ -11,7 +11,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.security.basicsecurity.domain.Account;
+import io.security.basicsecurity.domain.entity.Account;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
