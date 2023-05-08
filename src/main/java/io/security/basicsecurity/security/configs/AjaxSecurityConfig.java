@@ -1,3 +1,4 @@
+/*
 package io.security.basicsecurity.security.configs;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,5 +81,5 @@ public class AjaxSecurityConfig {
 		ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
 		return ajaxLoginProcessingFilter;
 	}
-
 }
+*/

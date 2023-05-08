@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import io.security.basicsecurity.domain.dto.AccountDto;
 import io.security.basicsecurity.domain.entity.Account;
+import io.security.basicsecurity.repository.RoleRepository;
 import io.security.basicsecurity.service.UserService;
 
 @Controller
@@ -24,22 +25,23 @@ public class UserController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	private RoleRepository roleRepository;
+	
 	@GetMapping(value="/users")
 	public String createUser() {
 		return "user/login/register";
 	}
 	
 	@PostMapping(value="/users")
-	public String createUser(AccountDto accountDto) {
-		
+	public String createUser(AccountDto accountDto) throws Exception {
+
 		ModelMapper modelMapper = new ModelMapper();
 		Account account = modelMapper.map(accountDto, Account.class);
-		account.setPassword(passwordEncoder.encode(account.getPassword()));
+		account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
 
-		//account.setRole("ROLE_USER");
-		
 		userService.createUser(account);
-		
+
 		return "redirect:/";
 	}
 	

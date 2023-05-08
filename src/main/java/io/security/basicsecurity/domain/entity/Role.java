@@ -42,10 +42,12 @@ public class Role {
     @Column(name = "role_desc")
     private String roleDesc;
 
+    //@Builder.Default
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roleSet")
     @OrderBy("ordernum desc")
     private Set<Resources> resourcesSet = new LinkedHashSet<>();
 
+    //@Builder.Default
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "userRoles")
     private Set<Account> accounts = new HashSet<>();
 }

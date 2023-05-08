@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -28,15 +29,23 @@ import lombok.ToString;
 public class Account {
 
 	@Id
-	@GeneratedValue
-	private Long Id;
-	
-	private String username;
-	private String password;
-	private String email;
-	private String age;
-	
-	@ManyToMany(fetch = FetchType.LAZY, cascade={CascadeType.ALL})
+    @GeneratedValue
+    private Long id;
+
+    @Column
+    private String username;
+
+    @Column
+    private String email;
+
+    @Column
+    private int age;
+
+    @Column
+    private String password;
+
+    //@Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY, cascade={CascadeType.ALL})
     @JoinTable(name = "account_roles", joinColumns = { @JoinColumn(name = "account_id") }, inverseJoinColumns = {
             @JoinColumn(name = "role_id") })
     private Set<Role> userRoles = new HashSet<>();

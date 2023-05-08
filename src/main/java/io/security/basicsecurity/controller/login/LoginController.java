@@ -49,9 +49,9 @@ public class LoginController {
 		
 		if (principal instanceof UsernamePasswordAuthenticationToken) {
 			System.out.println("UsernamePasswordAuthenticationToken 토큰을 변환");
-			account = (Account) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-			//AccountContext ac = (AccountContext) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-			//account = ac.getAccount();
+			//account = (Account) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+			AccountContext ac = (AccountContext) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+			account = ac.getAccount();
 		}
 		else if (principal instanceof AjaxAuthenticationToken) {
 			System.out.println("AjaxAuthenticationToken 토큰을 변환");

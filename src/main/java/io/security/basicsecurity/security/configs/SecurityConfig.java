@@ -1,16 +1,27 @@
 package io.security.basicsecurity.security.configs;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -19,9 +30,11 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.handler.CustomAuthenticationFailureHandler;
 import io.security.basicsecurity.security.handler.CustomAuthenticationSuccessHandler;
+import io.security.basicsecurity.security.metadatasource.UrlFilterInvocationSecurityMetadataSource;
+import io.security.basicsecurity.security.provider.CustomAuthenticationProvider;
 import jakarta.servlet.http.HttpServletRequest;
 
-@Order(2)
+//@Order(2)
 @Configuration
 public class SecurityConfig {
 	
@@ -48,37 +61,6 @@ public class SecurityConfig {
 				);
     }
 	
-	/*
-	@Bean
-	public UserDetailsService users() {
-		
-		String pw = passwordEncoder().encode("1111");
-		
-		UserDetails user = 
-				User.builder()
-					.username("user")
-					.password(pw)
-					.roles("USER")
-					.build();
-
-		UserDetails manager = 
-				User.builder()
-				.username("manager")
-				.password(pw)
-				.roles("MANAGER")
-				.build();
-
-		UserDetails admin = 
-				User.builder()
-				.username("admin")
-				.password(pw)
-				.roles("ADMIN")
-				.build();
-
-		return new InMemoryUserDetailsManager(user, manager, admin);
-	}
-	*/
-	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -102,6 +84,8 @@ public class SecurityConfig {
 			.successHandler(formAuthenticationSuccessHandler)
 			.failureHandler(formAuthenticationFailureHandler)
 			.permitAll()
+		//.and()
+		//	.addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
 		;
 
 		http
@@ -124,4 +108,48 @@ public class SecurityConfig {
 		return accessDeniedHandler;
 	}
 
+	/*
+	@Bean
+	public AuthenticationManager authManager() throws Exception {
+		AuthenticationManager authManager = new ProviderManager(customAuthenticationProvider());
+		return authManager;
+	}
+	
+	@Bean
+	public CustomAuthenticationProvider customAuthenticationProvider() {
+		return new CustomAuthenticationProvider(passwordEncoder());
+	}
+	
+	@Bean
+	public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
+		FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
+		filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+		filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
+		filterSecurityInterceptor.setAuthenticationManager(authManager());
+		return filterSecurityInterceptor;
+	}
+	*/
+	
+	/*
+	@Bean
+	public AuthorizationFilter customAuthorizationFilter() throws Exception {
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(null);
+		
+		return authorizationFilter;
+	}
+	*/
+	
+	@Bean
+	public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() {
+		return new UrlFilterInvocationSecurityMetadataSource();
+	}
+	
+	private AccessDecisionManager affirmativeBased() {
+		AffirmativeBased affirmativeBased = new AffirmativeBased(getAccessDecisionVoters());
+		return affirmativeBased;
+	}
+	
+	private List<AccessDecisionVoter<?>> getAccessDecisionVoters() {
+		return Arrays.asList(new RoleVoter());
+	}
 }

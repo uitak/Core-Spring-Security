@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import io.security.basicsecurity.security.common.FormWebAuthenticationDetails;
 import io.security.basicsecurity.security.service.AccountContext;
+import jakarta.transaction.Transactional;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -20,10 +21,14 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Autowired
 	private UserDetailsService userDetailsService;
 
-	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	public CustomAuthenticationProvider(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
+	}
 
 	@Override
+	@Transactional
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
 		System.out.println("커스텀: authenticate() 실행 ------------------------------");
