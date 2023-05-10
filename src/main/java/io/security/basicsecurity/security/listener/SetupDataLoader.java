@@ -64,11 +64,15 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         Set<Role> roles = new HashSet<>();
         Role adminRole = createRoleIfNotFound("ROLE_ADMIN", "관리자");
         roles.add(adminRole);
-        //createResourceIfNotFound("/admin/**", "", roles, "url");
+
+        createResourceIfNotFound("/admin/**", "", roles, "url");
         //createResourceIfNotFound("execution(public * io.security.corespringsecurity.aopsecurity.*Service.pointcut*(..))", "", roles, "pointcut");
-        createUserIfNotFound("admin", "admin@admin.com", "pass", roles);
-        //Role managerRole = createRoleIfNotFound("ROLE_MANAGER", "매니저권한");
-        //Role userRole = createRoleIfNotFound("ROLE_USER", "사용자권한");
+        
+        createUserIfNotFound("admin", "admin@admin.com", "pass", 10, roles);
+        
+        Role managerRole = createRoleIfNotFound("ROLE_MANAGER", "매니저권한");
+        Role userRole = createRoleIfNotFound("ROLE_USER", "사용자권한");
+
         //createRoleHierarchyIfNotFound(managerRole, adminRole);
         //createRoleHierarchyIfNotFound(userRole, managerRole);
     }
@@ -88,7 +92,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     }
 
     @Transactional
-    public Account createUserIfNotFound(final String userName, final String email, final String password, Set<Role> roleSet) {
+    public Account createUserIfNotFound(final String userName, final String email, final String password, final int age, Set<Role> roleSet) {
 
         Account account = userRepository.findByUsername(userName);
 
@@ -96,6 +100,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             account = Account.builder()
                     .username(userName)
                     .email(email)
+                    .age(age)
                     .password(passwordEncoder.encode(password))
                     .userRoles(roleSet)
                     .build();
