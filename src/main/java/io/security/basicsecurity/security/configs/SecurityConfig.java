@@ -12,7 +12,6 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -20,18 +19,19 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import io.security.basicsecurity.security.factory.UrlResourcesMapFactoryBean;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.handler.CustomAuthenticationFailureHandler;
 import io.security.basicsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import io.security.basicsecurity.security.metadatasource.UrlFilterInvocationSecurityMetadataSource;
 import io.security.basicsecurity.security.provider.CustomAuthenticationProvider;
+import io.security.basicsecurity.service.SecurityResourceService;
 import jakarta.servlet.http.HttpServletRequest;
 
 //@Order(2)
@@ -46,6 +46,9 @@ public class SecurityConfig {
 	
 	@Autowired
     private AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource;
+	
+	@Autowired
+	private SecurityResourceService securityResourceService;
 	
 	// 정적인 자원(css, js, image)에 대해서 스프링 시큐리티 필터를 거치지 않도록 설정.
 	@Bean
@@ -84,8 +87,9 @@ public class SecurityConfig {
 			.successHandler(formAuthenticationSuccessHandler)
 			.failureHandler(formAuthenticationFailureHandler)
 			.permitAll()
-		//.and()
-		//	.addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
+
+		.and()
+			.addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
 		;
 
 		http
@@ -108,7 +112,6 @@ public class SecurityConfig {
 		return accessDeniedHandler;
 	}
 
-	/*
 	@Bean
 	public AuthenticationManager authManager() throws Exception {
 		AuthenticationManager authManager = new ProviderManager(customAuthenticationProvider());
@@ -128,21 +131,6 @@ public class SecurityConfig {
 		filterSecurityInterceptor.setAuthenticationManager(authManager());
 		return filterSecurityInterceptor;
 	}
-	*/
-	
-	/*
-	@Bean
-	public AuthorizationFilter customAuthorizationFilter() throws Exception {
-		AuthorizationFilter authorizationFilter = new AuthorizationFilter(null);
-		
-		return authorizationFilter;
-	}
-	*/
-	
-	@Bean
-	public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() {
-		return new UrlFilterInvocationSecurityMetadataSource();
-	}
 	
 	private AccessDecisionManager affirmativeBased() {
 		AffirmativeBased affirmativeBased = new AffirmativeBased(getAccessDecisionVoters());
@@ -152,4 +140,17 @@ public class SecurityConfig {
 	private List<AccessDecisionVoter<?>> getAccessDecisionVoters() {
 		return Arrays.asList(new RoleVoter());
 	}
+	
+	@Bean
+    public UrlFilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
+        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean().getObject(), securityResourceService);
+    }
+
+    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
+
+        UrlResourcesMapFactoryBean urlResourcesMapFactoryBean = new UrlResourcesMapFactoryBean();
+        urlResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
+
+        return urlResourcesMapFactoryBean;
+    }
 }
